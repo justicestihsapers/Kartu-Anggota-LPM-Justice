@@ -4,59 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - LPM Justice STIHSA</title>
-    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e2e8f0; display: flex; justify-content: center;
-            align-items: flex-start; min-height: 100vh; margin: 0; padding: 20px;
-        }
-        .card {
-            background: white; width: 100%; max-width: 900px;
-            border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); padding: 30px;
-            margin-top: 20px;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e2e8f0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: white; width: 100%; max-width: 900px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15); padding: 30px; margin-top: 20px; }
         h2 { text-align: center; color: #1a365d; margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #4a5568;}
-        .form-group input { 
-            width: 100%; padding: 10px; border: 1px solid #cbd5e0; 
-            border-radius: 5px; box-sizing: border-box; font-size: 14px;
-        }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 5px; box-sizing: border-box; font-size: 14px; font-family: inherit;}
+        .form-group textarea { resize: vertical; min-height: 80px; }
         .row { display: flex; gap: 15px; flex-wrap: wrap; }
         .row .form-group { flex: 1; min-width: 200px; }
-        .btn {
-            padding: 10px 15px; background-color: #1a365d; color: white; 
-            border: none; border-radius: 5px; font-size: 14px; font-weight: bold; 
-            cursor: pointer; transition: 0.3s;
-        }
+        .btn { padding: 10px 15px; background-color: #1a365d; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn:hover { opacity: 0.9; }
         .btn-full { width: 100%; margin-top: 10px; padding: 12px; font-size: 16px; }
-        
-        /* Tombol Aksi di Tabel */
         .btn-aksi { padding: 6px 10px; font-size: 12px; margin-bottom: 5px; width: 100%; display: block; }
         .btn-qr { background-color: #3182ce; color: white; }
         .btn-edit { background-color: #d69e2e; color: white; }
         .btn-hapus { background-color: #e53e3e; color: white; }
-        
-        .alert { 
-            padding: 10px; background-color: #c6f6d5; color: #2f855a; 
-            border-radius: 5px; margin-bottom: 15px; display: none; text-align: center; font-weight: bold;
-        }
+        .alert { padding: 10px; background-color: #c6f6d5; color: #2f855a; border-radius: 5px; margin-bottom: 15px; display: none; text-align: center; font-weight: bold; }
         #adminArea { display: none; }
-        
-        #cropContainer {
-            display: none; margin-top: 15px; text-align: center;
-            background: #edf2f7; padding: 10px; border-radius: 5px;
-        }
+        #cropContainer { display: none; margin-top: 15px; text-align: center; background: #edf2f7; padding: 10px; border-radius: 5px; }
         .img-container { max-width: 100%; max-height: 400px; margin: 0 auto; }
         .img-container img { max-width: 100%; display: block; }
-        
         .table-container { margin-top: 30px; overflow-x: auto; border-top: 2px solid #e2e8f0; padding-top: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; vertical-align: top; }
@@ -64,23 +36,13 @@
         tr:hover { background-color: #edf2f7; }
         .foto-kecil { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
         .header-admin { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px;}
-
-        /* Gaya untuk Popup QR Code */
-        .modal { 
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
-            width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); 
-            align-items: center; justify-content: center; backdrop-filter: blur(3px);
-        }
-        .modal-content { 
-            background-color: white; padding: 30px; border-radius: 15px; 
-            width: 300px; text-align: center; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        .close { 
-            position: absolute; right: 20px; top: 15px; color: #a0aec0; 
-            font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-content { background-color: white; padding: 30px; border-radius: 15px; width: 300px; text-align: center; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .close { position: absolute; right: 20px; top: 15px; color: #a0aec0; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .close:hover { color: #e53e3e; }
         #qrcode img { margin: 0 auto; border: 10px solid white; outline: 1px solid #e2e8f0; border-radius: 5px;}
+        
+        .section-title { font-size: 15px; color: #1a365d; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -88,15 +50,17 @@
     <div class="card">
         <div id="loginArea">
             <h2>Login Admin</h2>
-            <div class="form-group">
-                <label>Username</label>
-                <input type="text" id="username" placeholder="Masukkan username">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="Masukkan password">
-            </div>
-            <button class="btn btn-full" onclick="cekLogin()">Masuk</button>
+            <form onsubmit="cekLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Masukkan username" autocomplete="username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Masukkan password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-full">Masuk</button>
+            </form>
         </div>
 
         <div id="adminArea">
@@ -104,34 +68,49 @@
                 <h2 style="margin: 0;">Kelola Data Anggota</h2>
                 <button class="btn" onclick="keluar()" style="background-color: #e53e3e;">Logout</button>
             </div>
-
             <div id="pesanSukses" class="alert">Data berhasil disimpan!</div>
             
             <div style="background: #f7fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                <h3 style="margin-top:0; color: #2d3748; font-size: 16px;">Form Input / Edit Data</h3>
+                
+                <div class="section-title">Data Dasar</div>
                 <div class="row">
-                    <div class="form-group">
-                        <label>ID Anggota</label>
-                        <input type="text" id="inputId" placeholder="Contoh: 103">
-                    </div>
-                    <div class="form-group">
-                        <label>Tahun Angkatan</label>
-                        <input type="text" id="inputAngkatan" placeholder="Contoh: 2023">
-                    </div>
+                    <div class="form-group"><label>ID Anggota (Wajib)</label><input type="text" id="inputId" placeholder="Contoh: 103"></div>
+                    <div class="form-group"><label>Tahun Angkatan (Wajib)</label><input type="text" id="inputAngkatan" placeholder="Contoh: 2023"></div>
                 </div>
 
                 <div class="row">
+                    <div class="form-group"><label>Nama Lengkap (Wajib)</label><input type="text" id="inputNama" placeholder="Contoh: Budi Santoso"></div>
+                    <div class="form-group"><label>Jabatan</label><input type="text" id="inputJabatan" placeholder="Contoh: Fotografer"></div>
+                    <div class="form-group"><label>Divisi</label><input type="text" id="inputDivisi" placeholder="Contoh: Multimedia"></div>
+                </div>
+
+                <div class="section-title">Detail Biodata & Track Record</div>
+                <div class="row">
+                    <div class="form-group"><label>Tempat, Tanggal Lahir</label><input type="text" id="inputTtl" placeholder="Banjarmasin, 17 Agustus 2000"></div>
+                    <div class="form-group"><label>Domisili saat ini</label><input type="text" id="inputDomisili" placeholder="Jl. Kayu Tangi, Banjarmasin"></div>
                     <div class="form-group">
-                        <label>Nama Lengkap</label>
-                        <input type="text" id="inputNama" placeholder="Contoh: Budi Santoso">
+                        <label>Status Mahasiswa</label>
+                        <select id="inputStatus">
+                            <option value="Masih Kuliah">Masih Kuliah</option>
+                            <option value="Lulus / Alumni">Lulus / Alumni</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Track Record (Riwayat Organisasi)</label>
+                    <textarea id="inputTrackRecord" placeholder="Contoh:&#10;Pimpinan Umum (Periode 2022-2023)&#10;Koordinator Liputan (Periode 2021-2022)"></textarea>
+                </div>
+                
+                <div class="section-title">Kontak & Foto</div>
+                <div class="row" style="background: #ebf8ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #bee3f8;">
+                    <div class="form-group">
+                        <label style="color: #2b6cb0;">No. WhatsApp Anggota</label>
+                        <input type="text" id="inputWa" placeholder="Contoh: 08123456789">
                     </div>
                     <div class="form-group">
-                        <label>Jabatan</label>
-                        <input type="text" id="inputJabatan" placeholder="Contoh: Fotografer">
-                    </div>
-                    <div class="form-group">
-                        <label>Divisi</label>
-                        <input type="text" id="inputDivisi" placeholder="Contoh: Multimedia">
+                        <label style="color: #2b6cb0;">Username IG Anggota</label>
+                        <input type="text" id="inputIg" placeholder="Contoh: budi_sntso">
                     </div>
                 </div>
                 
@@ -142,12 +121,10 @@
 
                 <div id="cropContainer">
                     <label style="color: #e53e3e; font-weight: bold; margin-bottom: 10px;">Geser & Sesuaikan Kotak Crop (Rasio 1:1)</label>
-                    <div class="img-container">
-                        <img id="imageToCrop" src="">
-                    </div>
+                    <div class="img-container"><img id="imageToCrop" src=""></div>
                 </div>
                 
-                <button class="btn btn-full" onclick="prosesSimpan()" style="background-color: #38a169;">Simpan Data</button>
+                <button class="btn btn-full" onclick="prosesSimpan()" style="background-color: #38a169;">Simpan Semua Data</button>
             </div>
 
             <div class="table-container">
@@ -157,13 +134,11 @@
                         <tr>
                             <th>Foto</th>
                             <th>No Anggota</th>
-                            <th>Nama & Jabatan</th>
+                            <th>Nama & Info</th>
                             <th style="width: 100px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelData">
-                        <tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>
-                    </tbody>
+                    <tbody id="tabelData"><tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -174,12 +149,9 @@
             <span class="close" onclick="tutupQR()">&times;</span>
             <h3 id="qrNama" style="color: #1a365d; margin-top: 0;">QR Code Anggota</h3>
             <p style="font-size: 12px; color: #718096; margin-bottom: 20px;">Scan ini untuk melihat profil digital.</p>
-            
             <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: 20px;"></div>
-            
             <label style="font-size: 12px; font-weight: bold; color: #4a5568; text-align: left; display: block; margin-bottom: 5px;">Link URL Profil:</label>
             <input type="text" id="qrLink" readonly style="width: 100%; padding: 10px; font-size: 12px; border: 1px solid #cbd5e0; border-radius: 5px; background: #f7fafc; margin-bottom: 10px; box-sizing: border-box;">
-            
             <button class="btn btn-full" onclick="copyLink()" style="background-color: #3182ce; padding: 10px; margin-top: 0;">Copy Link</button>
         </div>
     </div>
@@ -189,66 +161,43 @@
         let dataGlobal = {}; 
         let cropper = null; 
 
-        // --- SISTEM LOGIN ---
-        function cekLogin() {
+        // Fungsi Login
+        function cekLogin(event) {
+            event.preventDefault();
             const user = document.getElementById("username").value;
             const pass = document.getElementById("password").value;
-
+            
             if ((user === "Huzaifi" && pass === "kiki2012") || (user === "hadri" && pass === "superadmin")) {
                 document.getElementById("loginArea").style.display = "none";
                 document.getElementById("adminArea").style.display = "block";
                 muatDataFirebase(); 
-            } else {
-                alert("Username atau Password salah!");
-            }
+            } else { alert("Username atau Password salah!"); }
         }
 
         function keluar() {
             document.getElementById("loginArea").style.display = "block";
             document.getElementById("adminArea").style.display = "none";
-            document.getElementById("username").value = "";
+            document.getElementById("username").value = ""; 
             document.getElementById("password").value = "";
         }
 
-        // --- SISTEM TAMPILKAN QR CODE ---
+        // Fungsi QR
         function tampilkanQR(id, nama) {
             const modal = document.getElementById("qrModal");
             document.getElementById("qrNama").innerText = nama;
-            
-            // Mendapatkan Link Web Anda secara otomatis
             let baseUrl = window.location.href.split('admin.html')[0]; 
-            // Cek jika link tidak berakhiran slash
             if(!baseUrl.endsWith('/')) { baseUrl += '/'; }
             const urlProfile = baseUrl + "?id=" + id;
-            
             document.getElementById("qrLink").value = urlProfile;
-            document.getElementById("qrcode").innerHTML = ""; // Bersihkan QR lama
-
-            // Membuat QR Code baru
-            new QRCode(document.getElementById("qrcode"), {
-                text: urlProfile,
-                width: 200,
-                height: 200,
-                colorDark : "#1a365d", // Warna biru gelap khas LPM Justice
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-
+            document.getElementById("qrcode").innerHTML = ""; 
+            new QRCode(document.getElementById("qrcode"), { text: urlProfile, width: 200, height: 200, colorDark : "#1a365d", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
             modal.style.display = "flex";
         }
 
-        function tutupQR() {
-            document.getElementById("qrModal").style.display = "none";
-        }
+        function tutupQR() { document.getElementById("qrModal").style.display = "none"; }
+        function copyLink() { document.getElementById("qrLink").select(); document.execCommand("copy"); alert("Link berhasil disalin!"); }
 
-        function copyLink() {
-            const copyText = document.getElementById("qrLink");
-            copyText.select();
-            document.execCommand("copy");
-            alert("Link berhasil disalin!");
-        }
-
-        // --- SISTEM BACA DATA FIREBASE ---
+        // Load Data Firebase
         function muatDataFirebase() {
             const tabelBody = document.getElementById("tabelData");
             tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>`;
@@ -256,23 +205,22 @@
             fetch(`${databaseUrl}.json`)
                 .then(response => response.json())
                 .then(data => {
-                    dataGlobal = data || {}; 
-                    tabelBody.innerHTML = ""; 
-
-                    if (Object.keys(dataGlobal).length === 0) {
-                        tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Belum ada data anggota.</td></tr>`;
-                        return;
-                    }
+                    dataGlobal = data || {}; tabelBody.innerHTML = ""; 
+                    if (Object.keys(dataGlobal).length === 0) { tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Belum ada data anggota.</td></tr>`; return; }
 
                     for (const id in dataGlobal) {
                         const anggota = dataGlobal[id];
                         const fotoUrl = anggota.foto ? anggota.foto : `https://ui-avatars.com/api/?name=${anggota.nama}&background=1a365d&color=fff`;
                         
+                        // Menampilkan info singkat di tabel admin
+                        const statusTeks = anggota.status || 'Masih Kuliah';
+                        const infoTambahan = `<br><small style="color:#2b6cb0;">Status: ${statusTeks} | WA: ${anggota.wa || '-'} | IG: ${anggota.ig || '-'}</small>`;
+                        
                         const baris = `
                             <tr>
                                 <td><img src="${fotoUrl}" class="foto-kecil"></td>
                                 <td><strong>${anggota.no_anggota}</strong><br><small>ID: ${id}</small></td>
-                                <td><strong>${anggota.nama}</strong><br><small style="color:#e53e3e;">${anggota.jabatan}</small> - <small>${anggota.divisi}</small></td>
+                                <td><strong>${anggota.nama}</strong><br><small style="color:#e53e3e;">${anggota.jabatan}</small> ${infoTambahan}</td>
                                 <td>
                                     <button class="btn btn-aksi btn-qr" onclick="tampilkanQR('${id}', '${anggota.nama}')">Lihat QR</button>
                                     <button class="btn btn-aksi btn-edit" onclick="editData('${id}')">Edit</button>
@@ -283,22 +231,17 @@
                         tabelBody.innerHTML += baris;
                     }
                 })
-                .catch(error => {
-                    tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data dari database!</td></tr>`;
-                });
+                .catch(error => { tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data dari database!</td></tr>`; });
         }
 
-        // --- SISTEM CROP FOTO ---
+        // Fitur Crop Foto
         document.getElementById('inputFoto').addEventListener('change', function (e) {
             const files = e.target.files;
             if (files && files.length > 0) {
-                const file = files[0];
-                const reader = new FileReader();
+                const file = files[0]; const reader = new FileReader();
                 reader.onload = function (event) {
                     const imageToCrop = document.getElementById('imageToCrop');
-                    imageToCrop.src = event.target.result;
-                    document.getElementById('cropContainer').style.display = 'block';
-
+                    imageToCrop.src = event.target.result; document.getElementById('cropContainer').style.display = 'block';
                     if (cropper) { cropper.destroy(); }
                     cropper = new Cropper(imageToCrop, { aspectRatio: 1, viewMode: 1, background: false });
                 };
@@ -306,7 +249,7 @@
             }
         });
 
-        // --- SISTEM EDIT & HAPUS ---
+        // Edit dan Hapus Data
         function editData(id) {
             const anggota = dataGlobal[id];
             const splitNo = anggota.no_anggota.split('/');
@@ -318,10 +261,17 @@
             document.getElementById("inputJabatan").value = anggota.jabatan;
             document.getElementById("inputDivisi").value = anggota.divisi;
             
-            document.getElementById("inputFoto").value = "";
-            document.getElementById("cropContainer").style.display = "none";
-            if (cropper) { cropper.destroy(); cropper = null; }
+            // Kolom baru
+            document.getElementById("inputTtl").value = anggota.ttl || "";
+            document.getElementById("inputDomisili").value = anggota.domisili || "";
+            document.getElementById("inputStatus").value = anggota.status || "Masih Kuliah";
+            document.getElementById("inputTrackRecord").value = anggota.track_record || "";
             
+            document.getElementById("inputWa").value = anggota.wa || "";
+            document.getElementById("inputIg").value = anggota.ig || "";
+            
+            document.getElementById("inputFoto").value = ""; document.getElementById("cropContainer").style.display = "none";
+            if (cropper) { cropper.destroy(); cropper = null; }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
             const pesan = document.getElementById("pesanSukses");
@@ -332,36 +282,49 @@
 
         function hapusData(id) {
             if (confirm(`Apakah Anda yakin ingin menghapus data dengan ID ${id}?`)) {
-                fetch(`${databaseUrl}/${id}.json`, { method: 'DELETE' })
-                .then(() => { muatDataFirebase(); })
+                fetch(`${databaseUrl}/${id}.json`, { method: 'DELETE' }).then(() => { muatDataFirebase(); })
             }
         }
 
-        // --- SISTEM SIMPAN KE FIREBASE ---
+        // Proses Simpan Data
         function prosesSimpan() {
             const id = document.getElementById("inputId").value;
             const angkatan = document.getElementById("inputAngkatan").value;
             const nama = document.getElementById("inputNama").value;
             const jabatan = document.getElementById("inputJabatan").value;
             const divisi = document.getElementById("inputDivisi").value;
+            
+            // Mengambil nilai baru
+            const ttl = document.getElementById("inputTtl").value;
+            const domisili = document.getElementById("inputDomisili").value;
+            const status = document.getElementById("inputStatus").value;
+            const track_record = document.getElementById("inputTrackRecord").value;
+            
+            const wa = document.getElementById("inputWa").value;
+            const ig = document.getElementById("inputIg").value;
 
-            if (!id || !angkatan || !nama) { alert("ID, Angkatan, dan Nama wajib diisi!"); return; }
+            // Cek data wajib
+            if (!id || !angkatan || !nama) { alert("Data Dasar (ID, Angkatan, Nama) wajib diisi!"); return; }
 
             const no_anggota = `LPM-JS/${angkatan}/${id}`;
 
             if (cropper && document.getElementById("inputFoto").files.length > 0) {
                 const canvas = cropper.getCroppedCanvas({ width: 400, height: 400 });
                 const fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                simpanKeFirebase(id, nama, no_anggota, jabatan, divisi, fotoBase64);
+                simpanKeFirebase(id, nama, no_anggota, jabatan, divisi, ttl, domisili, status, track_record, wa, ig, fotoBase64);
             } else {
-                let fotoLama = "";
-                if (dataGlobal[id] && dataGlobal[id].foto) { fotoLama = dataGlobal[id].foto; }
-                simpanKeFirebase(id, nama, no_anggota, jabatan, divisi, fotoLama);
+                let fotoLama = ""; if (dataGlobal[id] && dataGlobal[id].foto) { fotoLama = dataGlobal[id].foto; }
+                simpanKeFirebase(id, nama, no_anggota, jabatan, divisi, ttl, domisili, status, track_record, wa, ig, fotoLama);
             }
         }
 
-        function simpanKeFirebase(id, nama, no_anggota, jabatan, divisi, foto) {
-            const dataBaru = { nama: nama, no_anggota: no_anggota, jabatan: jabatan, divisi: divisi, foto: foto };
+        function simpanKeFirebase(id, nama, no_anggota, jabatan, divisi, ttl, domisili, status, track_record, wa, ig, foto) {
+            // Memasukkan semua data ke format JSON
+            const dataBaru = { 
+                nama: nama, no_anggota: no_anggota, jabatan: jabatan, divisi: divisi, 
+                ttl: ttl, domisili: domisili, status: status, track_record: track_record,
+                wa: wa, ig: ig, foto: foto 
+            };
 
             fetch(`${databaseUrl}/${id}.json`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataBaru)
@@ -374,9 +337,15 @@
                 
                 muatDataFirebase();
 
+                // Membersihkan Form setelah simpan
                 document.getElementById("inputId").value = ""; document.getElementById("inputAngkatan").value = "";
                 document.getElementById("inputNama").value = ""; document.getElementById("inputJabatan").value = "";
-                document.getElementById("inputDivisi").value = ""; document.getElementById("inputFoto").value = ""; 
+                document.getElementById("inputDivisi").value = ""; 
+                document.getElementById("inputTtl").value = ""; document.getElementById("inputDomisili").value = ""; 
+                document.getElementById("inputStatus").value = "Masih Kuliah"; document.getElementById("inputTrackRecord").value = "";
+                document.getElementById("inputWa").value = ""; document.getElementById("inputIg").value = ""; 
+                
+                document.getElementById("inputFoto").value = ""; 
                 document.getElementById("cropContainer").style.display = "none";
                 if (cropper) { cropper.destroy(); cropper = null; }
 
@@ -385,6 +354,5 @@
             .catch(error => alert("Gagal menyimpan data. Pastikan koneksi internet lancar."));
         }
     </script>
-
 </body>
 </html>
