@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Card Digital - LPM Justice STIHSA</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e2e8f0; display: flex;
+            justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .card {
+            background: white; width: 100%; max-width: 350px;
+            border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+            overflow: hidden; text-align: center;
+        }
+        .header { background: #1a365d; color: white; padding: 20px 15px; }
+        .header h2 { margin: 0; font-size: 22px; }
+        .header p { margin: 5px 0 0 0; font-size: 12px; opacity: 0.8; }
+        .content { padding: 30px 20px; }
+        .foto-profil {
+            width: 130px; height: 130px; border-radius: 5px; /* Dibuat agak kotak seperti pass foto */
+            object-fit: cover; border: 4px solid #1a365d; margin-bottom: 15px;
+        }
+        h3 { margin: 0 0 5px 0; color: #2d3748; font-size: 20px; }
+        .jabatan { color: #e53e3e; font-weight: bold; margin: 0 0 15px 0; font-size: 14px; }
+        .garis { border: 0; height: 1px; background: #cbd5e0; margin: 15px 0; }
+        .info-table { width: 100%; text-align: left; font-size: 14px; color: #4a5568; }
+        .info-table td { padding: 6px 0; vertical-align: top; }
+        .info-table td:first-child { font-weight: bold; width: 35%; }
+        .footer {
+            background: #f7fafc; padding: 10px; font-size: 11px;
+            color: #718096; border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="header">
+            <h2>LPM JUSTICE STIHSA</h2>
+            <p>Kartu Anggota Digital</p>
+        </div>
+        <div class="content" id="data-anggota">
+            <p>Memuat data anggota...</p>
+        </div>
+        <div class="footer">
+            <p>Sekolah Tinggi Ilmu Hukum Sultan Adam</p>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const idAnggota = params.get('id');
+
+        // Link Database Anda
+        const firebaseUrl = `https://lpm-justice-stihsa-default-rtdb.asia-southeast1.firebasedatabase.app/anggota/${idAnggota}.json`;
+
+        const divData = document.getElementById('data-anggota');
+
+        if (idAnggota) {
+            fetch(firebaseUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        // Cek apakah ada pass foto, jika tidak ada, gunakan avatar inisial nama
+                        const fotoUrl = data.foto ? data.foto : `https://ui-avatars.com/api/?name=${data.nama}&background=1a365d&color=fff&size=200`;
+                        
+                        // Perhatikan bagian NIM diubah jadi No Anggota
+                        divData.innerHTML = `
+                            <img src="${fotoUrl}" alt="Foto ${data.nama}" class="foto-profil">
+                            <h3>${data.nama}</h3>
+                            <p class="jabatan">${data.jabatan}</p>
+                            <hr class="garis">
+                            <table class="info-table">
+                                <tr><td>No Anggota</td><td>: ${data.no_anggota}</td></tr>
+                                <tr><td>Divisi</td><td>: ${data.divisi}</td></tr>
+                            </table>
+                        `;
+                    } else {
+                        divData.innerHTML = `<p style="color:red; font-weight:bold;">Data anggota tidak ditemukan di database.</p>`;
+                    }
+                })
+                .catch(error => {
+                    divData.innerHTML = `<p>Gagal menyambung ke database. Pastikan internet lancar.</p>`;
+                });
+        } else {
+            divData.innerHTML = `<p>Scan QR Code di ID Card Anda untuk melihat profil.</p>`;
+        }
+    </script>
+
+</body>
+</html>
