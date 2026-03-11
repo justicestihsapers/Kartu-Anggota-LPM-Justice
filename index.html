@@ -3,93 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ID Card Digital - LPM Justice STIHSA</title>
+    <title>Digital ID - LPM Justice STIHSA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #e2e8f0; display: flex;
-            justify-content: center; align-items: center;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f3f4f6; 
+            display: flex; justify-content: center; align-items: center;
             min-height: 100vh; margin: 0; padding: 20px;
         }
         .card {
-            background: white; width: 100%; max-width: 350px;
-            border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-            overflow: hidden; text-align: center;
+            background: white; width: 100%; max-width: 380px;
+            border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            overflow: hidden; text-align: center; position: relative;
+            padding-bottom: 20px; min-height: 500px;
         }
-        .header { background: #1a365d; color: white; padding: 20px 15px; }
-        .header h2 { margin: 0; font-size: 22px; }
-        .header p { margin: 5px 0 0 0; font-size: 12px; opacity: 0.8; }
-        .content { padding: 30px 20px; }
+
+        /* --- TAMPILAN SPLASH SCREEN --- */
+        #splash-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 50; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+        .splash-logo { width: 120px; animation: pulse 1.5s infinite; }
+        .splash-text {
+            margin-top: 20px; font-size: 14px; color: #4b5563; font-weight: 600; letter-spacing: 1px;
+            animation: fadeIn 1s infinite alternate;
+        }
+        @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes fadeIn { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* --- TAMPILAN UTAMA --- */
+        .card-accent {
+            background: linear-gradient(135deg, #1a365d, #2b6cb0);
+            height: 160px; width: 100%; position: absolute; top: 0; left: 0; z-index: 1;
+        }
+        .main-logo {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 60px; z-index: 10; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2)); 
+        }
+        .content { position: relative; z-index: 2; padding: 0 25px; margin-top: 90px; }
+        
         .foto-profil {
-            width: 130px; height: 130px; border-radius: 5px; /* Dibuat agak kotak seperti pass foto */
-            object-fit: cover; border: 4px solid #1a365d; margin-bottom: 15px;
+            width: 140px; height: 140px; border-radius: 50%;
+            object-fit: cover; border: 6px solid white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1); background-color: white;
         }
-        h3 { margin: 0 0 5px 0; color: #2d3748; font-size: 20px; }
-        .jabatan { color: #e53e3e; font-weight: bold; margin: 0 0 15px 0; font-size: 14px; }
-        .garis { border: 0; height: 1px; background: #cbd5e0; margin: 15px 0; }
-        .info-table { width: 100%; text-align: left; font-size: 14px; color: #4a5568; }
-        .info-table td { padding: 6px 0; vertical-align: top; }
-        .info-table td:first-child { font-weight: bold; width: 35%; }
-        .footer {
-            background: #f7fafc; padding: 10px; font-size: 11px;
-            color: #718096; border-top: 1px solid #e2e8f0;
+        
+        .nama { margin: 15px 0 5px 0; color: #1f2937; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+        .jabatan { color: #e53e3e; font-weight: 700; font-size: 14px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* Badge Status */
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-bottom: 10px;
         }
+        .badge-kuliah { background-color: #def7ec; color: #03543f; }
+        .badge-lulus { background-color: #e1effe; color: #1e429f; }
+        
+        .detail-info { color: #6b7280; font-size: 13px; margin: 0; font-weight: 600; }
+
+        /* Box Biodata & Track Record */
+        .info-box {
+            background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
+            padding: 15px; margin-top: 20px; text-align: left;
+        }
+        .info-row {
+            display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-size: 13px; color: #4b5563;
+        }
+        .info-row:last-child { margin-bottom: 0; }
+        .info-icon { color: #1a365d; width: 16px; text-align: center; margin-top: 2px; }
+        
+        .track-record {
+            margin-top: 15px; padding-top: 15px; border-top: 1px dashed #d1d5db;
+        }
+        .tr-title { font-size: 12px; font-weight: bold; color: #9ca3af; text-transform: uppercase; margin-bottom: 5px; }
+        .tr-content { font-size: 13px; color: #374151; line-height: 1.5; font-weight: 500; }
+
+        /* Tombol Kontak */
+        .contact-buttons { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+        .btn-contact {
+            flex: 1; padding: 12px; border-radius: 10px; text-decoration: none;
+            color: white; font-weight: 600; font-size: 13px; display: flex;
+            align-items: center; justify-content: center; gap: 8px;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        .btn-contact:hover { transform: translateY(-2px); opacity: 0.9; }
+        .btn-wa { background-color: #25D366; }
+        .btn-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+
+        .divider { height: 1px; background: #e5e7eb; margin: 25px 0 20px 0; border: none; }
+
+        /* Footer & Links */
+        .org-title { font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 15px; }
+        .org-links { display: flex; justify-content: center; gap: 15px; }
+        .org-icon {
+            width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6;
+            color: #4b5563; display: flex; justify-content: center; align-items: center;
+            text-decoration: none; font-size: 18px; transition: 0.3s;
+        }
+        .org-icon:hover { background: #1a365d; color: white; transform: translateY(-3px); }
+        .status-msg { margin-top: 50px; padding: 30px; color: #6b7280; font-weight: 500; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="header">
-            <h2>LPM JUSTICE STIHSA</h2>
-            <p>Kartu Anggota Digital</p>
+    <div class="card" id="card-container">
+        
+        <div id="splash-screen">
+            <img src="https://raw.githubusercontent.com/justicestihsapers/Kartu-Anggota-LPM-Justice/refs/heads/main/LPM%20JS%20Fix.PNG" alt="Logo LPM Justice" class="splash-logo">
+            <div class="splash-text">Memuat Profil Digital...</div>
         </div>
+
+        <div class="card-accent"></div>
+        <img src="https://raw.githubusercontent.com/justicestihsapers/Kartu-Anggota-LPM-Justice/refs/heads/main/LPM%20JS%20Fix.PNG" alt="Logo Utama" class="main-logo">
+        
         <div class="content" id="data-anggota">
-            <p>Memuat data anggota...</p>
-        </div>
-        <div class="footer">
-            <p>Sekolah Tinggi Ilmu Hukum Sultan Adam</p>
-        </div>
+            </div>
     </div>
 
     <script>
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0'; 
+            setTimeout(() => { splash.style.visibility = 'hidden'; }, 500); 
+        }, 3000); 
+
         const params = new URLSearchParams(window.location.search);
         const idAnggota = params.get('id');
-
-        // Link Database Anda
         const firebaseUrl = `https://lpm-justice-stihsa-default-rtdb.asia-southeast1.firebasedatabase.app/anggota/${idAnggota}.json`;
-
         const divData = document.getElementById('data-anggota');
+
+        function formatWA(nomor) {
+            if (!nomor) return "";
+            let no = nomor.replace(/\D/g, ''); 
+            if (no.startsWith('0')) { no = '62' + no.substring(1); }
+            return no;
+        }
 
         if (idAnggota) {
             fetch(firebaseUrl)
                 .then(response => response.json())
                 .then(data => {
                     if (data) {
-                        // Cek apakah ada pass foto, jika tidak ada, gunakan avatar inisial nama
                         const fotoUrl = data.foto ? data.foto : `https://ui-avatars.com/api/?name=${data.nama}&background=1a365d&color=fff&size=200`;
-                        
-                        // Perhatikan bagian NIM diubah jadi No Anggota
+                        const waLink = data.wa ? `https://wa.me/${formatWA(data.wa)}` : '#';
+                        const igLink = data.ig ? `https://instagram.com/${data.ig.replace('@', '')}` : '#';
+                        const waHtml = data.wa ? `<a href="${waLink}" target="_blank" class="btn-contact btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>` : '';
+                        const igHtml = data.ig ? `<a href="${igLink}" target="_blank" class="btn-contact btn-ig"><i class="fab fa-instagram"></i> Instagram</a>` : '';
+
+                        // Menentukan warna badge lulus/kuliah
+                        const statusBadgeClass = (data.status === 'Lulus / Alumni') ? 'badge-lulus' : 'badge-kuliah';
+                        const statusTeks = data.status || 'Masih Kuliah';
+
+                        // Menyiapkan HTML untuk Track Record jika diisi
+                        const trackRecordHtml = data.track_record ? `
+                            <div class="track-record">
+                                <div class="tr-title"><i class="fas fa-history" style="margin-right:5px;"></i> Track Record</div>
+                                <div class="tr-content">${data.track_record.replace(/\n/g, '<br>')}</div>
+                            </div>
+                        ` : '';
+
                         divData.innerHTML = `
                             <img src="${fotoUrl}" alt="Foto ${data.nama}" class="foto-profil">
-                            <h3>${data.nama}</h3>
+                            <h1 class="nama">${data.nama}</h1>
                             <p class="jabatan">${data.jabatan}</p>
-                            <hr class="garis">
-                            <table class="info-table">
-                                <tr><td>No Anggota</td><td>: ${data.no_anggota}</td></tr>
-                                <tr><td>Divisi</td><td>: ${data.divisi}</td></tr>
-                            </table>
+                            
+                            <span class="badge ${statusBadgeClass}">${statusTeks}</span>
+                            <p class="detail-info">${data.no_anggota} &bull; ${data.divisi}</p>
+                            
+                            <div class="info-box">
+                                <div class="info-row">
+                                    <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
+                                    <div>${data.ttl || '<i>Data belum diisi</i>'}</div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div>${data.domisili || '<i>Data belum diisi</i>'}</div>
+                                </div>
+                                ${trackRecordHtml}
+                            </div>
+                            
+                            <div class="contact-buttons">
+                                ${waHtml}
+                                ${igHtml}
+                            </div>
+                            
+                            <hr class="divider">
+                            <div class="org-title">LPM Justice STIHSA</div>
+                            <div class="org-links">
+                                <a href="https://www.instagram.com/lpmjusticestihsa/" target="_blank" class="org-icon"><i class="fab fa-instagram"></i></a>
+                                <a href="https://www.youtube.com/channel/UCsVRYfg0TXrCLvR-l_aCjkw" target="_blank" class="org-icon"><i class="fab fa-youtube"></i></a>
+                                <a href="https://lpmjusticestihsa.blogspot.com/" target="_blank" class="org-icon"><i class="fas fa-globe"></i></a>
+                                <a href="https://share.google/jaL3yYTVYhiCSL2C3" target="_blank" class="org-icon"><i class="fas fa-map-marker-alt"></i></a>
+                            </div>
                         `;
                     } else {
-                        divData.innerHTML = `<p style="color:red; font-weight:bold;">Data anggota tidak ditemukan di database.</p>`;
+                        divData.innerHTML = `<div class="status-msg" style="color:#e53e3e;"><i class="fas fa-exclamation-circle" style="font-size: 30px; margin-bottom:10px;"></i><br>Profil tidak ditemukan.</div>`;
                     }
                 })
                 .catch(error => {
-                    divData.innerHTML = `<p>Gagal menyambung ke database. Pastikan internet lancar.</p>`;
+                    divData.innerHTML = `<div class="status-msg">Gagal memuat data. Periksa koneksi internet Anda.</div>`;
                 });
         } else {
-            divData.innerHTML = `<p>Scan QR Code di ID Card Anda untuk melihat profil.</p>`;
+            divData.innerHTML = `<div class="status-msg">Silakan scan QR Code pada ID Card untuk melihat profil.</div>`;
         }
     </script>
-
 </body>
 </html>
