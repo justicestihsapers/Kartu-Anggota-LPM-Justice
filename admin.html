@@ -41,8 +41,15 @@
         .close { position: absolute; right: 20px; top: 15px; color: #a0aec0; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .close:hover { color: #e53e3e; }
         #qrcode img { margin: 0 auto; border: 10px solid white; outline: 1px solid #e2e8f0; border-radius: 5px;}
-        
         .section-title { font-size: 15px; color: #1a365d; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; font-weight: bold; }
+        
+        /* Area Khusus Super Admin */
+        #superAdminArea { 
+            display: none; background: #fff5f5; border: 2px dashed #fc8181; 
+            padding: 20px; border-radius: 10px; margin-top: 30px; 
+        }
+        .sa-title { color: #c53030; font-size: 16px; font-weight: bold; margin-top: 0; border-bottom: 1px solid #feb2b2; padding-bottom: 10px; margin-bottom: 15px; }
+        .badge-sa { background: #e53e3e; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; margin-left: 10px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -50,7 +57,7 @@
     <div class="card">
         <div id="loginArea">
             <h2>Login Admin</h2>
-            <form onsubmit="cekLogin(event)">
+            <form id="formLogin">
                 <div class="form-group">
                     <label>Username</label>
                     <input type="text" id="username" placeholder="Masukkan username" autocomplete="username" required>
@@ -65,13 +72,12 @@
 
         <div id="adminArea">
             <div class="header-admin">
-                <h2 style="margin: 0;">Kelola Data Anggota</h2>
+                <h2 style="margin: 0;">Kelola Data Anggota <span id="badgeSuperAdmin" class="badge-sa" style="display:none;">SUPER ADMIN</span></h2>
                 <button class="btn" onclick="keluar()" style="background-color: #e53e3e;">Logout</button>
             </div>
             <div id="pesanSukses" class="alert">Data berhasil disimpan!</div>
             
             <div style="background: #f7fafc; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                
                 <div class="section-title">Data Dasar</div>
                 <div class="row">
                     <div class="form-group"><label>ID Anggota (Wajib)</label><input type="text" id="inputId" placeholder="Contoh: 103"></div>
@@ -104,20 +110,11 @@
                 
                 <div class="section-title">Kontak & Foto</div>
                 <div class="row" style="background: #ebf8ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #bee3f8;">
-                    <div class="form-group">
-                        <label style="color: #2b6cb0;">No. WhatsApp Anggota</label>
-                        <input type="text" id="inputWa" placeholder="Contoh: 08123456789">
-                    </div>
-                    <div class="form-group">
-                        <label style="color: #2b6cb0;">Username IG Anggota</label>
-                        <input type="text" id="inputIg" placeholder="Contoh: budi_sntso">
-                    </div>
+                    <div class="form-group"><label style="color: #2b6cb0;">No. WhatsApp Anggota</label><input type="text" id="inputWa" placeholder="Contoh: 08123456789"></div>
+                    <div class="form-group"><label style="color: #2b6cb0;">Username IG Anggota</label><input type="text" id="inputIg" placeholder="Contoh: budi_sntso"></div>
                 </div>
                 
-                <div class="form-group">
-                    <label>Upload Pass Foto</label>
-                    <input type="file" id="inputFoto" accept="image/*">
-                </div>
+                <div class="form-group"><label>Upload Pass Foto</label><input type="file" id="inputFoto" accept="image/*"></div>
 
                 <div id="cropContainer">
                     <label style="color: #e53e3e; font-weight: bold; margin-bottom: 10px;">Geser & Sesuaikan Kotak Crop (Rasio 1:1)</label>
@@ -141,6 +138,28 @@
                     <tbody id="tabelData"><tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr></tbody>
                 </table>
             </div>
+            
+            <div id="superAdminArea">
+                <h3 class="sa-title"><i class="fas fa-user-shield"></i> Kelola Akun Admin Baru</h3>
+                <p style="font-size: 13px; color: #718096; margin-top: -5px; margin-bottom: 15px;">Buatkan akun untuk pengurus lain agar mereka bisa menginput data tanpa mengetahui password Super Admin.</p>
+                
+                <div class="row">
+                    <div class="form-group"><label>Username Baru</label><input type="text" id="newAdminUser" placeholder="Contoh: admin_redaksi"></div>
+                    <div class="form-group"><label>Password Baru</label><input type="text" id="newAdminPass" placeholder="Contoh: redaksi123"></div>
+                </div>
+                <button class="btn" onclick="tambahAdminBaru()" style="background-color: #c53030; width: 100%;">Buat Akun Admin</button>
+
+                <div class="table-container" style="margin-top: 20px; border-top: 1px solid #feb2b2; padding-top: 15px;">
+                    <h4 style="margin-top:0; color: #c53030; font-size: 14px;">Daftar Admin Aktif</h4>
+                    <table>
+                        <thead>
+                            <tr><th>Username</th><th>Password</th><th style="width: 80px;">Aksi</th></tr>
+                        </thead>
+                        <tbody id="tabelDaftarAdmin"><tr><td colspan="3" style="text-align:center;">Memuat data admin...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -158,20 +177,56 @@
 
     <script>
         const databaseUrl = `https://lpm-justice-stihsa-default-rtdb.asia-southeast1.firebasedatabase.app/anggota`;
+        const adminDbUrl = `https://lpm-justice-stihsa-default-rtdb.asia-southeast1.firebasedatabase.app/admins`;
         let dataGlobal = {}; 
         let cropper = null; 
+        let isSuperAdmin = false;
 
-        // Fungsi Login
-        function cekLogin(event) {
-            event.preventDefault();
+        // --- SISTEM LOGIN MULTI-LEVEL ---
+        document.getElementById('formLogin').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah reload
             const user = document.getElementById("username").value;
             const pass = document.getElementById("password").value;
             
+            // 1. Cek apakah yang login adalah SUPER ADMIN (Hardcoded)
             if ((user === "Huzaifi" && pass === "kiki2012") || (user === "hadri" && pass === "superadmin")) {
-                document.getElementById("loginArea").style.display = "none";
-                document.getElementById("adminArea").style.display = "block";
-                muatDataFirebase(); 
-            } else { alert("Username atau Password salah!"); }
+                isSuperAdmin = true;
+                berhasilLogin();
+                document.getElementById("superAdminArea").style.display = "block";
+                document.getElementById("badgeSuperAdmin").style.display = "inline-block";
+                muatDaftarAdmin(); // Panggil fungsi khusus load admin
+                return;
+            }
+
+            // 2. Jika bukan Super Admin, cek di Database Firebase (Admin Biasa)
+            fetch(`${adminDbUrl}.json`)
+                .then(response => response.json())
+                .then(data => {
+                    let validLogin = false;
+                    if (data) {
+                        for (const key in data) {
+                            if (data[key].username === user && data[key].password === pass) {
+                                validLogin = true; break;
+                            }
+                        }
+                    }
+                    
+                    if (validLogin) {
+                        isSuperAdmin = false;
+                        berhasilLogin();
+                        document.getElementById("superAdminArea").style.display = "none";
+                        document.getElementById("badgeSuperAdmin").style.display = "none";
+                    } else {
+                        alert("Username atau Password salah!");
+                    }
+                })
+                .catch(err => alert("Gagal mengecek akun. Pastikan koneksi internet lancar."));
+        });
+
+        function berhasilLogin() {
+            document.getElementById("loginArea").style.display = "none";
+            document.getElementById("adminArea").style.display = "block";
+            muatDataFirebase(); 
         }
 
         function keluar() {
@@ -179,9 +234,60 @@
             document.getElementById("adminArea").style.display = "none";
             document.getElementById("username").value = ""; 
             document.getElementById("password").value = "";
+            isSuperAdmin = false;
         }
 
-        // Fungsi QR
+        // --- SISTEM KELOLA ADMIN (KHUSUS SUPER ADMIN) ---
+        function muatDaftarAdmin() {
+            const tabelAdmin = document.getElementById("tabelDaftarAdmin");
+            tabelAdmin.innerHTML = `<tr><td colspan="3" style="text-align:center;">Memuat data...</td></tr>`;
+            
+            fetch(`${adminDbUrl}.json`)
+                .then(res => res.json())
+                .then(data => {
+                    tabelAdmin.innerHTML = "";
+                    if (!data) { tabelAdmin.innerHTML = `<tr><td colspan="3" style="text-align:center;">Belum ada admin tambahan.</td></tr>`; return; }
+                    
+                    for (const id in data) {
+                        tabelAdmin.innerHTML += `
+                            <tr>
+                                <td><strong>${data[id].username}</strong></td>
+                                <td>${data[id].password}</td>
+                                <td><button class="btn btn-hapus" onclick="hapusAdmin('${id}', '${data[id].username}')">Hapus</button></td>
+                            </tr>
+                        `;
+                    }
+                });
+        }
+
+        function tambahAdminBaru() {
+            const userBaru = document.getElementById("newAdminUser").value;
+            const passBaru = document.getElementById("newAdminPass").value;
+            
+            if (!userBaru || !passBaru) { alert("Username dan Password baru wajib diisi!"); return; }
+            
+            // Generate ID acak untuk admin
+            const adminId = "adm_" + new Date().getTime();
+            const dataAdmin = { username: userBaru, password: passBaru };
+
+            fetch(`${adminDbUrl}/${adminId}.json`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataAdmin)
+            }).then(() => {
+                alert("Akun Admin berhasil dibuat!");
+                document.getElementById("newAdminUser").value = "";
+                document.getElementById("newAdminPass").value = "";
+                muatDaftarAdmin(); // Refresh tabel admin
+            });
+        }
+
+        function hapusAdmin(id, username) {
+            if (confirm(`Hapus hak akses untuk admin: ${username}?`)) {
+                fetch(`${adminDbUrl}/${id}.json`, { method: 'DELETE' }).then(() => { muatDaftarAdmin(); });
+            }
+        }
+
+
+        // --- SISTEM QR CODE ---
         function tampilkanQR(id, nama) {
             const modal = document.getElementById("qrModal");
             document.getElementById("qrNama").innerText = nama;
@@ -193,11 +299,11 @@
             new QRCode(document.getElementById("qrcode"), { text: urlProfile, width: 200, height: 200, colorDark : "#1a365d", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
             modal.style.display = "flex";
         }
-
         function tutupQR() { document.getElementById("qrModal").style.display = "none"; }
         function copyLink() { document.getElementById("qrLink").select(); document.execCommand("copy"); alert("Link berhasil disalin!"); }
 
-        // Load Data Firebase
+
+        // --- SISTEM DATA ANGGOTA ---
         function muatDataFirebase() {
             const tabelBody = document.getElementById("tabelData");
             tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>`;
@@ -211,12 +317,10 @@
                     for (const id in dataGlobal) {
                         const anggota = dataGlobal[id];
                         const fotoUrl = anggota.foto ? anggota.foto : `https://ui-avatars.com/api/?name=${anggota.nama}&background=1a365d&color=fff`;
-                        
-                        // Menampilkan info singkat di tabel admin
                         const statusTeks = anggota.status || 'Masih Kuliah';
                         const infoTambahan = `<br><small style="color:#2b6cb0;">Status: ${statusTeks} | WA: ${anggota.wa || '-'} | IG: ${anggota.ig || '-'}</small>`;
                         
-                        const baris = `
+                        tabelBody.innerHTML += `
                             <tr>
                                 <td><img src="${fotoUrl}" class="foto-kecil"></td>
                                 <td><strong>${anggota.no_anggota}</strong><br><small>ID: ${id}</small></td>
@@ -228,10 +332,8 @@
                                 </td>
                             </tr>
                         `;
-                        tabelBody.innerHTML += baris;
                     }
-                })
-                .catch(error => { tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data dari database!</td></tr>`; });
+                }).catch(error => { tabelBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Gagal memuat data dari database!</td></tr>`; });
         }
 
         // Fitur Crop Foto
@@ -249,26 +351,18 @@
             }
         });
 
-        // Edit dan Hapus Data
+        // Edit Data
         function editData(id) {
             const anggota = dataGlobal[id];
             const splitNo = anggota.no_anggota.split('/');
             const angkatan = splitNo.length > 1 ? splitNo[1] : "";
 
-            document.getElementById("inputId").value = id;
-            document.getElementById("inputAngkatan").value = angkatan;
-            document.getElementById("inputNama").value = anggota.nama;
-            document.getElementById("inputJabatan").value = anggota.jabatan;
+            document.getElementById("inputId").value = id; document.getElementById("inputAngkatan").value = angkatan;
+            document.getElementById("inputNama").value = anggota.nama; document.getElementById("inputJabatan").value = anggota.jabatan;
             document.getElementById("inputDivisi").value = anggota.divisi;
-            
-            // Kolom baru
-            document.getElementById("inputTtl").value = anggota.ttl || "";
-            document.getElementById("inputDomisili").value = anggota.domisili || "";
-            document.getElementById("inputStatus").value = anggota.status || "Masih Kuliah";
-            document.getElementById("inputTrackRecord").value = anggota.track_record || "";
-            
-            document.getElementById("inputWa").value = anggota.wa || "";
-            document.getElementById("inputIg").value = anggota.ig || "";
+            document.getElementById("inputTtl").value = anggota.ttl || ""; document.getElementById("inputDomisili").value = anggota.domisili || "";
+            document.getElementById("inputStatus").value = anggota.status || "Masih Kuliah"; document.getElementById("inputTrackRecord").value = anggota.track_record || "";
+            document.getElementById("inputWa").value = anggota.wa || ""; document.getElementById("inputIg").value = anggota.ig || "";
             
             document.getElementById("inputFoto").value = ""; document.getElementById("cropContainer").style.display = "none";
             if (cropper) { cropper.destroy(); cropper = null; }
@@ -281,29 +375,20 @@
         }
 
         function hapusData(id) {
-            if (confirm(`Apakah Anda yakin ingin menghapus data dengan ID ${id}?`)) {
+            if (confirm(`Apakah Anda yakin ingin menghapus data anggota ini?`)) {
                 fetch(`${databaseUrl}/${id}.json`, { method: 'DELETE' }).then(() => { muatDataFirebase(); })
             }
         }
 
-        // Proses Simpan Data
+        // Proses Simpan Data Anggota
         function prosesSimpan() {
-            const id = document.getElementById("inputId").value;
-            const angkatan = document.getElementById("inputAngkatan").value;
-            const nama = document.getElementById("inputNama").value;
-            const jabatan = document.getElementById("inputJabatan").value;
-            const divisi = document.getElementById("inputDivisi").value;
-            
-            // Mengambil nilai baru
-            const ttl = document.getElementById("inputTtl").value;
-            const domisili = document.getElementById("inputDomisili").value;
-            const status = document.getElementById("inputStatus").value;
-            const track_record = document.getElementById("inputTrackRecord").value;
-            
-            const wa = document.getElementById("inputWa").value;
+            const id = document.getElementById("inputId").value; const angkatan = document.getElementById("inputAngkatan").value;
+            const nama = document.getElementById("inputNama").value; const jabatan = document.getElementById("inputJabatan").value;
+            const divisi = document.getElementById("inputDivisi").value; const ttl = document.getElementById("inputTtl").value;
+            const domisili = document.getElementById("inputDomisili").value; const status = document.getElementById("inputStatus").value;
+            const track_record = document.getElementById("inputTrackRecord").value; const wa = document.getElementById("inputWa").value;
             const ig = document.getElementById("inputIg").value;
 
-            // Cek data wajib
             if (!id || !angkatan || !nama) { alert("Data Dasar (ID, Angkatan, Nama) wajib diisi!"); return; }
 
             const no_anggota = `LPM-JS/${angkatan}/${id}`;
@@ -319,16 +404,9 @@
         }
 
         function simpanKeFirebase(id, nama, no_anggota, jabatan, divisi, ttl, domisili, status, track_record, wa, ig, foto) {
-            // Memasukkan semua data ke format JSON
-            const dataBaru = { 
-                nama: nama, no_anggota: no_anggota, jabatan: jabatan, divisi: divisi, 
-                ttl: ttl, domisili: domisili, status: status, track_record: track_record,
-                wa: wa, ig: ig, foto: foto 
-            };
+            const dataBaru = { nama: nama, no_anggota: no_anggota, jabatan: jabatan, divisi: divisi, ttl: ttl, domisili: domisili, status: status, track_record: track_record, wa: wa, ig: ig, foto: foto };
 
-            fetch(`${databaseUrl}/${id}.json`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataBaru)
-            })
+            fetch(`${databaseUrl}/${id}.json`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dataBaru) })
             .then(response => response.json())
             .then(data => {
                 const pesan = document.getElementById("pesanSukses");
@@ -336,19 +414,14 @@
                 pesan.innerText = "Data berhasil disimpan!"; pesan.style.display = "block";
                 
                 muatDataFirebase();
-
-                // Membersihkan Form setelah simpan
                 document.getElementById("inputId").value = ""; document.getElementById("inputAngkatan").value = "";
                 document.getElementById("inputNama").value = ""; document.getElementById("inputJabatan").value = "";
-                document.getElementById("inputDivisi").value = ""; 
-                document.getElementById("inputTtl").value = ""; document.getElementById("inputDomisili").value = ""; 
-                document.getElementById("inputStatus").value = "Masih Kuliah"; document.getElementById("inputTrackRecord").value = "";
-                document.getElementById("inputWa").value = ""; document.getElementById("inputIg").value = ""; 
-                
-                document.getElementById("inputFoto").value = ""; 
+                document.getElementById("inputDivisi").value = ""; document.getElementById("inputTtl").value = ""; 
+                document.getElementById("inputDomisili").value = ""; document.getElementById("inputStatus").value = "Masih Kuliah"; 
+                document.getElementById("inputTrackRecord").value = ""; document.getElementById("inputWa").value = ""; 
+                document.getElementById("inputIg").value = ""; document.getElementById("inputFoto").value = ""; 
                 document.getElementById("cropContainer").style.display = "none";
                 if (cropper) { cropper.destroy(); cropper = null; }
-
                 setTimeout(() => { pesan.style.display = "none"; }, 3000);
             })
             .catch(error => alert("Gagal menyimpan data. Pastikan koneksi internet lancar."));
